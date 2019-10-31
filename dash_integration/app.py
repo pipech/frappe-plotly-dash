@@ -14,18 +14,38 @@ from frappe.middlewares import StaticDataMiddleware
 
 
 # load dash application
-dash_app = dash.Dash(
-    __name__,
-    requests_pathname_prefix='/dash/',
-)
+dash_app = dash.Dash(__name__)
 
 # config
 dash_app.config.suppress_callback_exceptions = True
+dash_app.config.update({
+    'requests_pathname_prefix': '/dash/'
+})
 
 # dash layout
 dash_app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
     html.H1('HELLO WORLD FROM DASH'),
+    html.Div(id='page-content'),
 ])
+
+
+# router for dash app
+@dash_app.callback(
+    dash.dependencies.Output('page-content', 'children'),
+    [dash.dependencies.Input('url', 'pathname')]
+)
+def display_page(pathname):
+    from dash_integration.dashboard import simple_dash
+    from dash_integration.dashboard import simple_dash2
+
+    if pathname == '/dash/page-1':
+        return simple_dash.layout
+    elif pathname == '/dash/page-2':
+        return simple_dash2.layout
+    else:
+        return '404'
+
 
 # attach dash to frappe
 application = DispatcherMiddleware(application, {
