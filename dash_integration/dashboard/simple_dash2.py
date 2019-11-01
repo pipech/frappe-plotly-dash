@@ -8,9 +8,18 @@ from dash_integration.app import dash_app
 
 layout = [
     html.Div([
-        dcc.Input(id='aaa', value='initial value', type='text'),
-        html.Div(id='bbb')
-    ], className='card-body'),
+        html.Div([
+            html.Div([
+                html.Div([
+                    'Testing Dashboard'
+                ], className='card-header'),
+                html.Div([
+                    dcc.Input(id='my-id', value='initial value', type='text'),
+                    html.Div(id='my-div')
+                ], className='card-body'),
+            ], className='card')
+        ], className='col-md-12')
+    ], className='row')
 ]
 
 

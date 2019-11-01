@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    
+    [%metas%]
+    [%favicon%]
+    [%css%]
+    <title>[%title%]</title>
+
+    <!-- Icons-->
+    <link href="https://unpkg.com/@coreui/icons/css/free.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.3/css/flag-icon.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css" rel="stylesheet">
+    <!-- Main styles for this application-->
+    <link href="/assets/dash_integration/css/style.css" rel="stylesheet">
+    <link href="/assets/dash_integration/vendors/pace-progress/css/pace.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="app-body" id="container">
+      <main class="main">
+        <div id="ui-view">
+          [%app_entry%]
+        </div>
+      </main>
+    </div>
+
+    [%config%]
+    [%scripts%]
+    [%renderer%]
+
+    <!-- send height to parent script -->
+    <script>
+      const ro = new ResizeObserver((elem) => {
+        const cr = elem[0].contentRect;
+
+        let height;
+        let currentHeight = cr.height;
+
+        if (currentHeight !== height) {
+          height = currentHeight;
+          window.parent.postMessage({
+            'frameHeight': height
+          }, '*');
+        }
+      });
+
+      // Observe one or multiple elements
+      ro.observe(document.body);
+    </script>
+
+    <!-- CoreUI and necessary plugins-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/esm/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.4.0/perfect-scrollbar.min.js"></script>
+    <script src="/assets/dash_integration/dist/js/coreui.min.js"></script>
+  </body>
+</html>

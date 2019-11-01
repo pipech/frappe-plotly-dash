@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2019-10-30 12:54:29.234544",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2019-11-01 09:51:52.138175",
+ "modified_by": "Administrator",
+ "module": "Dash Integration",
+ "name": "dash",
+ "owner": "Administrator",
+ "page_name": "Dash",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 1,
+ "title": "Dash"
+}

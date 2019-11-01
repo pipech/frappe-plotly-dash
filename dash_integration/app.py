@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import os
 import logging
+import frappe
 
 from werkzeug.wsgi import DispatcherMiddleware
 from werkzeug.contrib.profiler import ProfilerMiddleware
@@ -11,6 +12,17 @@ from werkzeug.serving import run_simple
 
 from frappe.app import application
 from frappe.middlewares import StaticDataMiddleware
+
+
+def dash_render_template(template_name):
+    # default render template by flask
+    template = frappe.render_template(template_name, context={})
+
+    # replacing custom context
+    template = template.replace('[%', '{%')
+    template = template.replace('%]', '%}')
+
+    return template
 
 
 # load dash application
@@ -22,10 +34,15 @@ dash_app.config.update({
     'requests_pathname_prefix': '/dash/'
 })
 
+# Override the underlying HTML template
+html_layout = dash_render_template(
+    template_name='templates/dashboard.html',
+)
+dash_app.index_string = html_layout
+
 # dash layout
 dash_app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
-    html.H1('HELLO WORLD FROM DASH'),
     html.Div(id='page-content'),
 ])
 
