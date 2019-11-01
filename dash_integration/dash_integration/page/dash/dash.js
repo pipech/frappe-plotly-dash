@@ -1,4 +1,7 @@
 frappe.pages['dash'].on_page_load = (wrapper) => {
+	const cookie = frappe.get_cookies();
+	const sid = cookie.sid;
+
 	// init page
 	const page = frappe.ui.make_app_page({
 		'parent': wrapper,
@@ -10,7 +13,7 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 	const iframeHtml = `
 		<iframe
 		id="dash-iframe"
-		src="http://site1.local:8000/dash/page-1"
+		src="http://site1.local:8000/dash/page-1?sid=${sid}"
 		style="
 			border: none;
 			width: 100%;

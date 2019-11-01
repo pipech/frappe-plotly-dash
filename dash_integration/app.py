@@ -5,6 +5,8 @@ import os
 import logging
 import frappe
 import flask
+import requests
+import urllib
 
 from werkzeug.wsgi import DispatcherMiddleware
 from werkzeug.contrib.profiler import ProfilerMiddleware
@@ -55,16 +57,46 @@ dash_app.layout = html.Div([
 # router for dash app
 @dash_app.callback(
     dash.dependencies.Output('page-content', 'children'),
-    [dash.dependencies.Input('url', 'pathname')]
+    [
+        dash.dependencies.Input('url', 'pathname'),
+        dash.dependencies.Input('url', 'href'),
+    ]
 )
-def display_page(pathname):
+def display_page(pathname, href):
     from dash_integration.dashboard import simple_dash
     from dash_integration.dashboard import simple_dash2
 
-    if pathname == '/dash/page-1':
-        return simple_dash.layout
-    elif pathname == '/dash/page-2':
-        return simple_dash2.layout
+    # extract information from url
+    parsed_uri = urllib.parse.urlparse(href)
+    url_param = urllib.parse.parse_qs(parsed_uri.query)
+    sid = url_param.get('sid', '')
+    domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+
+    # prepare for api
+    get_user_info_api = '/api/method/frappe.realtime.get_user_info'
+    get_user_info_api_url = '{}{}'.format(domain, get_user_info_api)
+    user_param = {'sid': sid}
+
+    # call api
+    response = requests.get(
+        get_user_info_api_url,
+        params=user_param
+    )
+    if response.status_code == 200:
+        user = response.json()['message'].get('user', '')
+        print(user)
+
+    # # test frappe connection
+    # frappe.connect('site1.local')
+    # print(frappe.get_doc('Company', 'SpaceCode'))
+
+    if user == 'Administrator':
+        if pathname == '/dash/page-1':
+            return simple_dash.layout
+        elif pathname == '/dash/page-2':
+            return simple_dash2.layout
+        else:
+            return '404'
     else:
         return '404'
 
