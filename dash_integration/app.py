@@ -4,6 +4,7 @@ import dash_html_components as html
 import os
 import logging
 import frappe
+import flask
 
 from werkzeug.wsgi import DispatcherMiddleware
 from werkzeug.contrib.profiler import ProfilerMiddleware
@@ -15,7 +16,7 @@ from frappe.middlewares import StaticDataMiddleware
 
 
 def dash_render_template(template_name):
-    # default render template by flask
+    # default render template by frappe
     template = frappe.render_template(template_name, context={})
 
     # replacing custom context
@@ -26,7 +27,11 @@ def dash_render_template(template_name):
 
 
 # load dash application
-dash_app = dash.Dash(__name__)
+flask_server = flask.Flask(__name__)
+dash_app = dash.Dash(
+    __name__,
+    server=flask_server,
+)
 
 # config
 dash_app.config.suppress_callback_exceptions = True
