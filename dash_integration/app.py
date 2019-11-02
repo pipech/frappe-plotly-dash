@@ -66,39 +66,53 @@ def display_page(pathname, href):
     from dash_integration.dashboard import simple_dash
     from dash_integration.dashboard import simple_dash2
 
-    # extract information from url
-    parsed_uri = urllib.parse.urlparse(href)
-    url_param = urllib.parse.parse_qs(parsed_uri.query)
-    sid = url_param.get('sid', '')
-    domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+    if href:
+        # extract information from url
+        parsed_uri = urllib.parse.urlparse(href)
+        url_param = urllib.parse.parse_qs(parsed_uri.query)
+        sid = url_param.get('sid', '')
+        site_name = url_param.get('site_name', '')
+        if site_name:
+            site_name = site_name[0]
+        domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
 
-    # prepare for api
-    get_user_info_api = '/api/method/frappe.realtime.get_user_info'
-    get_user_info_api_url = '{}{}'.format(domain, get_user_info_api)
-    user_param = {'sid': sid}
+        # prepare for api
+        get_user_info_api = '/api/method/frappe.realtime.get_user_info'
+        get_user_info_api_url = '{}{}'.format(domain, get_user_info_api)
+        user_param = {'sid': sid}
 
-    # call api
-    response = requests.get(
-        get_user_info_api_url,
-        params=user_param
-    )
-    if response.status_code == 200:
-        user = response.json()['message'].get('user', '')
-        print(user)
+        # call api
+        response = requests.get(
+            get_user_info_api_url,
+            params=user_param
+        )
+        if response.status_code == 200:
+            user = response.json()['message'].get('user', '')
 
-    # # test frappe connection
-    # frappe.connect('site1.local')
-    # print(frappe.get_doc('Company', 'SpaceCode'))
+        # test frappe connection
+        frappe_connected = False
+        if site_name:
+            frappe.connect(site_name)
+            frappe_connected = True
 
-    if user == 'Administrator':
-        if pathname == '/dash/page-1':
-            return simple_dash.layout
-        elif pathname == '/dash/page-2':
-            return simple_dash2.layout
-        else:
-            return '404'
+        # display page
+        if frappe_connected:
+            # copied from frappe.www.desk
+            if (
+                user == 'Guest' or
+                frappe.db.get_value('User', user, 'user_type') == 'Website User'
+            ):
+                return 'You are not permitted to access this page.'
+            else:
+                if pathname == '/dash/page-1':
+                    return simple_dash.layout
+                elif pathname == '/dash/page-2':
+                    return simple_dash2.layout
+                else:
+                    return '404'
+        return 'You are not permitted to access this page.'
     else:
-        return '404'
+        return ''
 
 
 # attach dash to frappe
