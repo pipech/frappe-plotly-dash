@@ -53,6 +53,8 @@ dash_app.layout = html.Div([
     html.Div(id='page-content'),
 ])
 
+# set frappe
+dash_app.fp = frappe
 
 # router for dash app
 @dash_app.callback(
@@ -92,7 +94,7 @@ def display_page(pathname, href):
         # test frappe connection
         frappe_connected = False
         if site_name:
-            frappe.connect(site_name)
+            dash_app.fp.connect(site_name)
             frappe_connected = True
 
         # display page
@@ -100,12 +102,12 @@ def display_page(pathname, href):
             # copied from frappe.www.desk
             if (
                 user == 'Guest' or
-                frappe.db.get_value('User', user, 'user_type') == 'Website User'
+                dash_app.fp.db.get_value('User', user, 'user_type') == 'Website User'
             ):
                 return 'You are not permitted to access this page.'
             else:
                 if pathname == '/dash/page-1':
-                    return simple_dash.layout
+                    return simple_dash.get_layout()
                 elif pathname == '/dash/page-2':
                     return simple_dash2.layout
                 else:
