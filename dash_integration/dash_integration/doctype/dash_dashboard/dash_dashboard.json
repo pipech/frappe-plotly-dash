@@ -7,7 +7,6 @@
  "engine": "InnoDB",
  "field_order": [
   "dashboard_name",
-  "url",
   "is_active",
   "section_break_4",
   "roles"
@@ -20,13 +19,6 @@
    "label": "Name",
    "reqd": 1,
    "unique": 1
-  },
-  {
-   "fieldname": "url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Url",
-   "reqd": 1
   },
   {
    "default": "1",
@@ -47,7 +39,7 @@
    "options": "Has Role"
   }
  ],
- "modified": "2019-11-04 20:38:04.504648",
+ "modified": "2019-11-04 21:33:11.761171",
  "modified_by": "Administrator",
  "module": "Dash Integration",
  "name": "Dash Dashboard",
