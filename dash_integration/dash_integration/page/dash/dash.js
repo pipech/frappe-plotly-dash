@@ -22,10 +22,11 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 */
 function attachIframe(page, sid, siteName) {
 	// attach iframe
+	const siteOrigin = window.location.origin;
 	const iframeHtml = `
 		<iframe
 		id="dash-iframe"
-		src="http://site1.local:8000/dash/page-1?sid=${sid}&site_name=${siteName}"
+		src="${siteOrigin}/dash/page-1?sid=${sid}&site_name=${siteName}"
 		style="
 			border: none;
 			width: 100%;
