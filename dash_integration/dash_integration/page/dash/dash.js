@@ -4,6 +4,7 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 	const cookie = frappe.get_cookies();
 	dash.sid = cookie.sid;
 	dash.siteName = frappe.boot.sitename;
+	dash.wrapper = wrapper;
 
 	// init page
 	const page = frappe.ui.make_app_page({
@@ -68,6 +69,9 @@ function createSelectionField(wrapper) {
 				const dashboardName = selDashboard.get_value();
 				if (dashboardName) {
 					changeIframeUrl(dashboardName);
+					changeTitle(dashboardName);
+					// clear input
+					selDashboard.set_input('');
 				}
 			},
 			'get_query': () => {
@@ -77,6 +81,7 @@ function createSelectionField(wrapper) {
 					},
 				};
 			},
+			'placeholder': 'Select Dashboard',
 		},
 		'render_input': true,
 	});
@@ -103,4 +108,13 @@ function changeIframeUrl(dashboardName) {
 			}
 		},
 	});
+}
+
+
+/** Change page title
+ * @param {str} title
+*/
+function changeTitle(title) {
+	const pageTitle = $(dash.wrapper).find('div.title-text');
+	pageTitle.text(`${title} Dashboard`);
 }
