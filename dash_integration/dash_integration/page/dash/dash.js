@@ -1,7 +1,9 @@
+const dash = {};
+
 frappe.pages['dash'].on_page_load = (wrapper) => {
 	const cookie = frappe.get_cookies();
-	const sid = cookie.sid;
-	const siteName = frappe.boot.sitename;
+	dash.sid = cookie.sid;
+	dash.siteName = frappe.boot.sitename;
 
 	// init page
 	const page = frappe.ui.make_app_page({
@@ -10,23 +12,19 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 		'single_column': true,
 	});
 
-	attachIframe(page, sid, siteName);
+	attachIframe(page);
 	createSelectionField(wrapper);
 };
 
 
 /** Attach iframe to page
  * @param {object} page
- * @param {string} sid
- * @param {string} siteName
 */
-function attachIframe(page, sid, siteName) {
+function attachIframe(page) {
 	// attach iframe
-	const siteOrigin = window.location.origin;
 	const iframeHtml = `
 		<iframe
 		id="dash-iframe"
-		src="${siteOrigin}/dash/page-1?sid=${sid}&site_name=${siteName}"
 		style="
 			border: none;
 			width: 100%;
@@ -69,7 +67,7 @@ function createSelectionField(wrapper) {
 			'onchange': () => {
 				const dashboardName = selDashboard.get_value();
 				if (dashboardName) {
-					console.log(dashboardName);
+					changeIframeUrl(dashboardName);
 				}
 			},
 			'get_query': () => {
@@ -83,4 +81,26 @@ function createSelectionField(wrapper) {
 		'render_input': true,
 	});
 	selDashboard.$wrapper.css('text-align', 'left');
+}
+
+
+/** Change Iframe url
+ * @param {str} dashboardName
+*/
+function changeIframeUrl(dashboardName) {
+	const siteOrigin = window.location.origin;
+
+	frappe.call({
+		'method': 'dash_integration.dash_integration.page.dash.get_dashboard_path',
+		'args': {
+			'dashboard_name': dashboardName,
+		},
+		'callback': function(r) {
+			const path = r.message;
+			if (r) {
+				const iframeUrl = `${siteOrigin}/dash/${path}?sid=${dash.sid}&site_name=${dash.siteName}`;
+				$('#dash-iframe').attr('src', iframeUrl);
+			}
+		},
+	});
 }
