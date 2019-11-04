@@ -10,7 +10,18 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 		'single_column': true,
 	});
 
-	// attatch dash iframe
+	attachIframe(page, sid, siteName);
+	createSelectionField(wrapper);
+};
+
+
+/** Attach iframe to page
+ * @param {object} page
+ * @param {string} sid
+ * @param {string} siteName
+*/
+function attachIframe(page, sid, siteName) {
+	// attach iframe
 	const iframeHtml = `
 		<iframe
 		id="dash-iframe"
@@ -31,6 +42,44 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 		const frameHeight = event.data.frameHeight;
 		dashIframe.style.height = `${frameHeight + 30}px`;
 	}
-
+	// attach resizer
 	window.addEventListener('message', resizeIframe, false);
-};
+}
+
+
+/** Create customer dashboard selection field
+ * @param {object} wrapper
+ */
+function createSelectionField(wrapper) {
+	const $pageAction = (
+		$(wrapper)
+			.find('div.page-head div.page-actions')
+	);
+	// remove change page-actions class
+	$pageAction.removeClass('page-actions');
+
+	// create dashboard selection field
+	const selDashboard = frappe.ui.form.make_control({
+		'parent': $pageAction,
+		'df': {
+			'fieldname': 'Dashboard',
+			'fieldtype': 'Link',
+			'options': 'Dash Dashboard',
+			'onchange': () => {
+				const dashboardName = selDashboard.get_value();
+				if (dashboardName) {
+					console.log(dashboardName);
+				}
+			},
+			'get_query': () => {
+				return {
+					'filters': {
+						'is_active': 1,
+					},
+				};
+			},
+		},
+		'render_input': true,
+	});
+	selDashboard.$wrapper.css('text-align', 'left');
+}
