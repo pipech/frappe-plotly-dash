@@ -15,6 +15,7 @@ from werkzeug.serving import run_simple
 
 from frappe.app import application
 from frappe.middlewares import StaticDataMiddleware
+from dash_integration.dash_integration.page.dash import check_permitted
 
 
 def dash_render_template(template_name):
@@ -76,6 +77,9 @@ def display_page(pathname, href):
         site_name = url_param.get('site_name', '')
         if site_name:
             site_name = site_name[0]
+        dashboard = url_param.get('dash', '')
+        if dashboard:
+            dashboard = dashboard[0]
         domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
 
         # prepare for api
@@ -99,16 +103,16 @@ def display_page(pathname, href):
 
         # display page
         if frappe_connected:
-            # copied from frappe.www.desk
-            if (
-                user == 'Guest' or
-                dash_app.fp.db.get_value('User', user, 'user_type') == 'Website User'
+            # check user permission
+            if check_permitted(
+                dashboard_name=dashboard,
+                username=user,
             ):
                 return 'You are not permitted to access this page.'
             else:
-                if pathname == '/dash/page-1':
+                if dashboard == 'Testing 1':
                     return simple_dash.get_layout()
-                elif pathname == '/dash/page-2':
+                elif pathname == 'Testing 2':
                     return simple_dash2.layout
                 else:
                     return '404'

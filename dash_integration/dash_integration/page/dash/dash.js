@@ -95,19 +95,8 @@ function createSelectionField(wrapper) {
 function changeIframeUrl(dashboardName) {
 	const siteOrigin = window.location.origin;
 
-	frappe.call({
-		'method': 'dash_integration.dash_integration.page.dash.get_dashboard_path',
-		'args': {
-			'dashboard_name': dashboardName,
-		},
-		'callback': function(r) {
-			const path = r.message;
-			if (r) {
-				const iframeUrl = `${siteOrigin}/dash/${path}?sid=${dash.sid}&site_name=${dash.siteName}`;
-				$('#dash-iframe').attr('src', iframeUrl);
-			}
-		},
-	});
+	const iframeUrl = `${siteOrigin}/dash?sid=${dash.sid}&site_name=${dash.siteName}&dash=${dashboardName}`;
+	$('#dash-iframe').attr('src', iframeUrl);
 }
 
 
