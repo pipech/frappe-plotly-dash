@@ -57,6 +57,7 @@ dash_app.layout = html.Div([
 # set frappe
 dash_app.fp = frappe
 
+
 # router for dash app
 @dash_app.callback(
     dash.dependencies.Output('page-content', 'children'),
