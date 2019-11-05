@@ -1,5 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import frappe
 
 from dash.dependencies import Input, Output
 
@@ -14,8 +15,8 @@ layout = [
                     'Testing Dashboard'
                 ], className='card-header'),
                 html.Div([
-                    dcc.Input(id='my-id', value='initial value', type='text'),
-                    html.Div(id='my-div')
+                    dcc.Input(id='aaa', value='initial value', type='text'),
+                    html.Div(id='bbb')
                 ], className='card-body'),
             ], className='card')
         ], className='col-md-12')
@@ -28,4 +29,7 @@ layout = [
     [Input(component_id='aaa', component_property='value')]
 )
 def update_output_div(input_value):
+    print('=====================')
+    print('callback', frappe.db.get_value('User', 'Administrator', 'user_type'))
+    print('=====================')
     return 'You\'ve entered "{}"'.format(input_value)

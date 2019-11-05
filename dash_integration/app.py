@@ -54,9 +54,6 @@ dash_app.layout = html.Div([
     html.Div(id='page-content'),
 ])
 
-# set frappe
-dash_app.fp = frappe
-
 
 # router for dash app
 @dash_app.callback(
@@ -98,7 +95,7 @@ def display_page(href):
         # test frappe connection
         frappe_connected = False
         if site_name:
-            dash_app.fp.connect(site_name)
+            frappe.connect(site_name)
             frappe_connected = True
 
         # display page
