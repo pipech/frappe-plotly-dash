@@ -61,11 +61,10 @@ dash_app.fp = frappe
 @dash_app.callback(
     dash.dependencies.Output('page-content', 'children'),
     [
-        dash.dependencies.Input('url', 'pathname'),
         dash.dependencies.Input('url', 'href'),
     ]
 )
-def display_page(pathname, href):
+def display_page(href):
     from dash_integration.dashboard import simple_dash
     from dash_integration.dashboard import simple_dash2
 
@@ -108,14 +107,14 @@ def display_page(pathname, href):
                 dashboard_name=dashboard,
                 username=user,
             ):
-                return 'You are not permitted to access this page.'
-            else:
                 if dashboard == 'Testing 1':
                     return simple_dash.get_layout()
-                elif pathname == 'Testing 2':
+                elif dashboard == 'Testing 2':
                     return simple_dash2.layout
                 else:
                     return '404'
+            else:
+                return 'You are not permitted to access this page.'
         return 'You are not permitted to access this page.'
     else:
         return ''
