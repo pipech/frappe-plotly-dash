@@ -4,25 +4,16 @@ Plotly Dash integration for Frappe web framework
 
 ### Usage
 
-You have to edit frappe apps in `frappe/frappe/app.py`
+You have to edit frappe apps in `frappe/frappe/website/render.py`
 
-import function at the top of the file
+add these line on top of render function
 
-`from dash_integration.app import build_ajax, build_page`
+```python
+from dash_integration.app import dash_render
 
-in application function `def application(request):` add these line
-
-    if frappe.local.form_dict.cmd:
-        response = frappe.handler.handle()
-
-    elif frappe.request.path.startswith("/dash/_dash"):
-        response = build_ajax(request)
-
-    elif frappe.request.path.startswith("/dash/"):
-        response = build_page(request)
-
-    elif frappe.request.path.startswith("/api/"):
-        response = frappe.api.handle()
+@dash_render
+def render(path=None, http_status_code=None):
+```
 
 ### Description
 

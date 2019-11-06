@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import json
+import frappe
 
 from flask import Flask
 from werkzeug.wrappers import Response
@@ -68,3 +69,15 @@ def build_page(request):
     response.charset = 'utf-8'
 
     return response
+
+
+def dash_render(frappe_render):
+    def render(*args, **kwargs):
+        if frappe.request.path.startswith("/dash/_dash"):
+            return build_ajax(frappe.request)
+        elif frappe.request.path.startswith("/dash/"):
+            return build_page(frappe.request)
+        else:
+            return frappe_render(*args, **kwargs)
+
+    return render
