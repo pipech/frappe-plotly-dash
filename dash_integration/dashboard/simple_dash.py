@@ -4,7 +4,7 @@ import frappe
 
 from dash.dependencies import Input, Output
 
-from dash_integration.app import dash_app
+from dash_integration.dash_application import dash_app
 
 
 def get_layout():

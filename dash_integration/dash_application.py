@@ -22,8 +22,8 @@ dash_app.config.suppress_callback_exceptions = True
 
 # dash layout
 dash_app.layout = html.Div([
-    dcc.Input(id='my-id', value='initial value', type='text'),
-    html.Div(id='my-div')
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content'),
 ])
 
 # registered callback
