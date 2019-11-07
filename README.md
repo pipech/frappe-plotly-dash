@@ -4,18 +4,13 @@ Plotly Dash integration for Frappe web framework
 
 ### Usage
 
-You have to edit frappe apps in `frappe/frappe/website/render.py`
+### For development setup
 
-add these line on top of render function
-
-```python
-from dash_integration.app import dash_render
-
-@dash_render
-def render(path=None, http_status_code=None):
-```
+    bench execute dash_integration.app.serve
 
 ### Description
+
+For iFrame resizing we use ResizeObserver, it compatible for most of the browser but not all. Check compatibility at caniuse.
 
 [CoreUi bootstrap admin template](https://github.com/coreui/coreui-free-bootstrap-admin-template/) is use to templating dash page. 
 
