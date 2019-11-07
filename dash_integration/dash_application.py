@@ -6,6 +6,7 @@ import frappe
 
 from flask import Flask
 from werkzeug.wrappers import Response
+from dash.dependencies import Input, Output
 
 
 # load dash application
@@ -21,14 +22,23 @@ dash_app.config.suppress_callback_exceptions = True
 
 # dash layout
 dash_app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.H1('HELLO FROM DASH EMBED'),
-    html.Div(id='page-content'),
+    dcc.Input(id='my-id', value='initial value', type='text'),
+    html.Div(id='my-div')
 ])
+
+
+# router
+@dash_app.callback(
+    Output(component_id='my-div', component_property='children'),
+    [Input(component_id='my-id', component_property='value')]
+)
+def update_output_div(input_value):
+    return 'You\'ve entered "{}"'.format(input_value)
 
 
 def dash_dispatcher(request):
     params = {
+        'data': request.data,
         'method': request.method,
         'content_type': request.content_type
     }

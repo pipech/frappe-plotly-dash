@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from dash_integration.dash_app import build_ajax, build_page
+from dash_integration.dash_application import build_ajax, build_page
 from frappe.app import *
 
 
