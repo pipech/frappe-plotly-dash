@@ -26,14 +26,10 @@ dash_app.layout = html.Div([
     html.Div(id='my-div')
 ])
 
-
-# router
-@dash_app.callback(
-    Output(component_id='my-div', component_property='children'),
-    [Input(component_id='my-id', component_property='value')]
-)
-def update_output_div(input_value):
-    return 'You\'ve entered "{}"'.format(input_value)
+# registered callback
+with server.app_context():
+    from dash_integration.router import callback
+    callback()
 
 
 def dash_dispatcher(request):
