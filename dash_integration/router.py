@@ -1,7 +1,7 @@
-import dash
 import urllib
 
 from dash_integration.dash_application import dash_app
+from dash_integration.auth import has_desk_permission
 from dash.dependencies import Input, Output
 
 
@@ -23,9 +23,12 @@ def callback():
             url_param = urllib.parse.parse_qs(parsed_uri.query)
             dashboard = url_param.get('dash', '')[0]
 
-            if dashboard == 'Testing 1':
-                return simple_dash.get_layout()
-            elif dashboard == 'Testing 2':
-                return simple_dash2.layout
+            if has_desk_permission():
+                if dashboard == 'Testing 1':
+                    return simple_dash.get_layout()
+                elif dashboard == 'Testing 2':
+                    return simple_dash2.layout
+                else:
+                    return '404'
             else:
-                return '404'
+                return 'You are not permitted to access this page'

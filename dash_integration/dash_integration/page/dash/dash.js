@@ -2,7 +2,6 @@ const dash = {};
 
 frappe.pages['dash'].on_page_load = (wrapper) => {
 	const cookie = frappe.get_cookies();
-	dash.sid = cookie.sid;
 	dash.siteName = frappe.boot.sitename;
 	dash.wrapper = wrapper;
 
@@ -94,7 +93,7 @@ function createSelectionField(wrapper) {
 */
 function changeIframeUrl(dashboardName) {
 	const siteOrigin = window.location.origin;
-	const iframeUrl = `${siteOrigin}/dash/dashboard?sid=${dash.sid}&dash=${dashboardName}`;
+	const iframeUrl = `${siteOrigin}/dash/dashboard?dash=${dashboardName}`;
 	$('#dash-iframe').attr('src', iframeUrl);
 }
 
