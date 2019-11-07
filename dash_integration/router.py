@@ -10,14 +10,10 @@ def callback():
     @dash_app.callback(
         Output('page-content', 'children'),
         [
-            Input('url', 'pathname'),
             Input('url', 'href'),
         ],
     )
-    def display_page(pathname, href):
-        from dash_integration.dashboard import simple_dash
-        from dash_integration.dashboard import simple_dash2
-
+    def display_page(href):
         if href:
             # extract information from url
             parsed_uri = urllib.parse.urlparse(href)
@@ -26,13 +22,20 @@ def callback():
 
             if has_desk_permission():
                 if has_dashboard_permission(dashboard):
-                    if dashboard == 'Testing 1':
-                        return simple_dash.get_layout()
-                    elif dashboard == 'Testing 2':
-                        return simple_dash2.layout
-                    else:
-                        return '404'
+                    return dash_route(dashboard)
                 else:
                     return 'You are not permitted to access this dashboard'
             else:
                 return 'You are not permitted to access this page'
+
+
+def dash_route(dashboard):
+    from dash_integration.dashboard import simple_dash
+    from dash_integration.dashboard import simple_dash2
+
+    if dashboard == 'Testing 1':
+        return simple_dash.get_layout()
+    elif dashboard == 'Testing 2':
+        return simple_dash2.layout
+    else:
+        return '404'
