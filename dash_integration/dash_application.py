@@ -1,12 +1,8 @@
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
 import json
-import frappe
 
 from flask import Flask
 from werkzeug.wrappers import Response
-from dash.dependencies import Input, Output
 
 
 # load dash application
@@ -20,34 +16,15 @@ dash_app = dash.Dash(
 # config
 dash_app.config.suppress_callback_exceptions = True
 
-# dash layout
-dash_app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content'),
-])
-
-
-def dash_render_template(template_name):
-    # default render template by frappe
-    template = frappe.render_template(template_name, context={})
-
-    # replacing custom context
-    template = template.replace('[%', '{%')
-    template = template.replace('%]', '%}')
-
-    return template
-
-
-# Override the underlying HTML template
-html_layout = dash_render_template(
-    template_name='templates/dashboard.html',
-)
-dash_app.index_string = html_layout
-
-# registered callback
+# registered dash config
 with server.app_context():
+    # router
     from dash_integration.router import callback
     callback()
+
+    # layout
+    from dash_integration.layout import config_layout
+    config_layout(dash_app)
 
 
 def dash_dispatcher(request):
