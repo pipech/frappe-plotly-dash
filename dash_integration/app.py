@@ -1,149 +1,112 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import os
-import logging
-import frappe
-import flask
-import requests
-import urllib
+from __future__ import unicode_literals
 
-from werkzeug.wsgi import DispatcherMiddleware
-from werkzeug.contrib.profiler import ProfilerMiddleware
-from werkzeug.wsgi import SharedDataMiddleware
-from werkzeug.serving import run_simple
-
-from frappe.app import application
-from frappe.middlewares import StaticDataMiddleware
-from dash_integration.dash_integration.page.dash import check_permitted
+from dash_integration.dash_application import build_ajax, build_page
+from frappe.app import *
 
 
-def dash_render_template(template_name):
-    # default render template by frappe
-    template = frappe.render_template(template_name, context={})
-
-    # replacing custom context
-    template = template.replace('[%', '{%')
-    template = template.replace('%]', '%}')
-
-    return template
+local_manager = LocalManager([frappe.local])
 
 
-# load dash application
-flask_server = flask.Flask(__name__)
-dash_app = dash.Dash(
-    __name__,
-    server=flask_server,
-)
+@Request.application
+def application(request):
+    response = None
 
-# config
-dash_app.config.suppress_callback_exceptions = True
-dash_app.config.update({
-    'requests_pathname_prefix': '/dash/'
-})
+    try:
+        rollback = True
 
-# Override the underlying HTML template
-html_layout = dash_render_template(
-    template_name='templates/dashboard.html',
-)
-dash_app.index_string = html_layout
+        init_request(request)
 
-# dash layout
-dash_app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content'),
-])
+        frappe.recorder.record()
 
-# set frappe
-dash_app.fp = frappe
+        if frappe.local.form_dict.cmd:
+            response = frappe.handler.handle()
 
-# router for dash app
-@dash_app.callback(
-    dash.dependencies.Output('page-content', 'children'),
-    [
-        dash.dependencies.Input('url', 'pathname'),
-        dash.dependencies.Input('url', 'href'),
-    ]
-)
-def display_page(pathname, href):
-    from dash_integration.dashboard import simple_dash
-    from dash_integration.dashboard import simple_dash2
+        # dash router
+        # ####################################################
+        elif frappe.request.path.startswith("/dash/_dash"):
+            response = build_ajax(request)
+        elif frappe.request.path.startswith("/dash/"):
+            response = build_page(request)
+        # ####################################################
 
-    if href:
-        # extract information from url
-        parsed_uri = urllib.parse.urlparse(href)
-        url_param = urllib.parse.parse_qs(parsed_uri.query)
-        sid = url_param.get('sid', '')
-        site_name = url_param.get('site_name', '')
-        if site_name:
-            site_name = site_name[0]
-        dashboard = url_param.get('dash', '')
-        if dashboard:
-            dashboard = dashboard[0]
-        domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+        elif frappe.request.path.startswith("/api/"):
+            response = frappe.api.handle()
 
-        # prepare for api
-        get_user_info_api = '/api/method/frappe.realtime.get_user_info'
-        get_user_info_api_url = '{}{}'.format(domain, get_user_info_api)
-        user_param = {'sid': sid}
+        elif frappe.request.path.startswith('/backups'):
+            response = frappe.utils.response.download_backup(request.path)
 
-        # call api
-        response = requests.get(
-            get_user_info_api_url,
-            params=user_param
-        )
-        if response.status_code == 200:
-            user = response.json()['message'].get('user', '')
+        elif frappe.request.path.startswith('/private/files/'):
+            response = frappe.utils.response.download_private_file(request.path)
 
-        # test frappe connection
-        frappe_connected = False
-        if site_name:
-            dash_app.fp.connect(site_name)
-            frappe_connected = True
+        elif frappe.local.request.method in ('GET', 'HEAD', 'POST'):
+            response = frappe.website.render.render()
 
-        # display page
-        if frappe_connected:
-            # check user permission
-            if check_permitted(
-                dashboard_name=dashboard,
-                username=user,
-            ):
-                return 'You are not permitted to access this page.'
-            else:
-                if dashboard == 'Testing 1':
-                    return simple_dash.get_layout()
-                elif pathname == 'Testing 2':
-                    return simple_dash2.layout
-                else:
-                    return '404'
-        return 'You are not permitted to access this page.'
+        else:
+            raise NotFound
+
+    except HTTPException as e:
+        return e
+
+    except frappe.SessionStopped as e:
+        response = frappe.utils.response.handle_session_stopped()
+
+    except Exception as e:
+        # dash router
+        # ####################################################
+        if frappe.request.path.startswith("/dash/_dash"):
+            response = build_ajax(request)
+        # ####################################################
+        else:
+            response = handle_exception(e)
+
     else:
-        return ''
+        rollback = after_request(rollback)
+
+    finally:
+        if frappe.local.request.method in ("POST", "PUT") and frappe.db and rollback:
+            frappe.db.rollback()
+
+        # set cookies
+        if response and hasattr(frappe.local, 'cookie_manager'):
+            frappe.local.cookie_manager.flush_cookies(response=response)
+
+        frappe.recorder.dump()
+
+        frappe.destroy()
+
+    return response
 
 
-# attach dash to frappe
-application = DispatcherMiddleware(application, {
-    '/dash': dash_app.server,
-})
+application = local_manager.make_middleware(application)
 
 
-# custom "serve" command to run frappe with dash
-# modified from frappe.app
-def serve(application=application, port=8000, profile=False, no_reload=False, no_threading=False, sites_path='.'):
+def serve(port=8000, profile=False, no_reload=False, no_threading=False, site=None, sites_path='.'):
+    global application, _site, _sites_path
+    _site = site
+    _sites_path = sites_path
+
+    from werkzeug.serving import run_simple
+
     if profile:
         application = ProfilerMiddleware(
             application,
-            sort_by=('cumtime', 'calls')
+            sort_by=('cumtime', 'calls'),
         )
 
     if not os.environ.get('NO_STATICS'):
-        application = SharedDataMiddleware(application, {
-            str('/assets'): str(os.path.join(sites_path, 'assets'))
-        })
+        application = SharedDataMiddleware(
+            application,
+            {
+                str('/assets'): str(os.path.join(sites_path, 'assets')),
+            },
+        )
 
-        application = StaticDataMiddleware(application, {
-            str('/files'): str(os.path.abspath(sites_path))
-        })
+        application = StaticDataMiddleware(
+            application,
+            {
+                str('/files'): str(os.path.abspath(sites_path))
+            },
+        )
 
     application.debug = True
     application.config = {
@@ -155,12 +118,8 @@ def serve(application=application, port=8000, profile=False, no_reload=False, no
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
 
-    run_simple(
-        '0.0.0.0',
-        int(port),
-        application,
+    run_simple('0.0.0.0', int(port), application,
         use_reloader=False if in_test_env else not no_reload,
         use_debugger=not in_test_env,
         use_evalex=not in_test_env,
-        threaded=not no_threading
-    )
+        threaded=not no_threading)

@@ -1,11 +1,6 @@
-const dash = {};
+/* eslint require-jsdoc: 0 */
 
 frappe.pages['dash'].on_page_load = (wrapper) => {
-	const cookie = frappe.get_cookies();
-	dash.sid = cookie.sid;
-	dash.siteName = frappe.boot.sitename;
-	dash.wrapper = wrapper;
-
 	// init page
 	const page = frappe.ui.make_app_page({
 		'parent': wrapper,
@@ -13,97 +8,92 @@ frappe.pages['dash'].on_page_load = (wrapper) => {
 		'single_column': true,
 	});
 
-	attachIframe(page);
-	createSelectionField(wrapper);
+	new Dash(page, wrapper);
 };
 
 
-/** Attach iframe to page
- * @param {object} page
-*/
-function attachIframe(page) {
-	// attach iframe
-	const iframeHtml = `
-		<iframe
-		id="dash-iframe"
-		style="
-			border: none;
-			width: 100%;
-		">
-		</iframe>
-	`;
-	$(page.main).append(iframeHtml);
-
-	/** Resize iframe function.
-	 * @param {object} event - A string param
-	 */
-	function resizeIframe(event) {
-		const dashIframe = document.getElementById('dash-iframe');
-		const frameHeight = event.data.frameHeight;
-		dashIframe.style.height = `${frameHeight + 30}px`;
+class Dash {
+	constructor(page, wrapper) {
+		this.wrapper = wrapper;
+		this.page = page;
+		this.siteOrigin = window.location.origin;
+		this.pageMain = $(page.main);
+		this.pageAction = (
+			$(this.wrapper)
+				.find('div.page-head div.page-actions')
+		);
+		this.pageTitle = $(this.wrapper).find('div.title-text');
+		this.iframeHtml = `
+			<iframe
+			id="dash-iframe"
+			style="
+				border: none;
+				width: 100%;
+			">
+			</iframe>
+		`;
+		this.init();
 	}
-	// attach resizer
-	window.addEventListener('message', resizeIframe, false);
-}
 
+	init() {
+		// attatch iframe
+		this.$dashIframe = $(this.iframeHtml).appendTo(this.pageMain);
+		// attatch iframe resizer
+		this.resizer();
+		// attatch dashboard selector
+		this.createSelectionField();
+	}
 
-/** Create customer dashboard selection field
- * @param {object} wrapper
- */
-function createSelectionField(wrapper) {
-	const $pageAction = (
-		$(wrapper)
-			.find('div.page-head div.page-actions')
-	);
-	// remove change page-actions class
-	$pageAction.removeClass('page-actions');
+	resizer() {
+		window.addEventListener('message', resize, false);
+		function resize(event) {
+			const dashIframe = document.getElementById('dash-iframe');
+			const frameHeight = event.data.frameHeight;
+			dashIframe.style.height = `${frameHeight + 30}px`;
+		}
+	}
 
-	// create dashboard selection field
-	const selDashboard = frappe.ui.form.make_control({
-		'parent': $pageAction,
-		'df': {
-			'fieldname': 'Dashboard',
-			'fieldtype': 'Link',
-			'options': 'Dash Dashboard',
-			'onchange': () => {
-				const dashboardName = selDashboard.get_value();
-				if (dashboardName) {
-					changeIframeUrl(dashboardName);
-					changeTitle(dashboardName);
-					// clear input
-					selDashboard.set_input('');
-				}
+	createSelectionField() {
+		// create dashboard selection field
+		this.selectionField = frappe.ui.form.make_control({
+			'parent': this.pageAction,
+			'df': {
+				'fieldname': 'Dashboard',
+				'fieldtype': 'Link',
+				'options': 'Dash Dashboard',
+				'onchange': () => {
+					const dashboardName = this.selectionField.get_value();
+					if (dashboardName) {
+						this.dashboardName = dashboardName;
+						this.changeIframeUrl();
+						this.changeTitle(dashboardName);
+						// clear input
+						this.selectionField.set_input('');
+					}
+				},
+				'get_query': () => {
+					return {
+						'filters': {
+							'is_active': 1,
+						},
+					};
+				},
+				'placeholder': 'Select Dashboard',
 			},
-			'get_query': () => {
-				return {
-					'filters': {
-						'is_active': 1,
-					},
-				};
-			},
-			'placeholder': 'Select Dashboard',
-		},
-		'render_input': true,
-	});
-	selDashboard.$wrapper.css('text-align', 'left');
-}
+			'render_input': true,
+		});
 
+		// change css
+		this.pageAction.removeClass('page-actions');
+		this.selectionField.$wrapper.css('text-align', 'left');
+	}
 
-/** Change Iframe url
- * @param {str} dashboardName
-*/
-function changeIframeUrl(dashboardName) {
-	const siteOrigin = window.location.origin;
+	changeIframeUrl() {
+		this.iframeUrl = `${this.siteOrigin}/dash/dashboard?dash=${this.dashboardName}`;
+		this.$dashIframe.attr('src', this.iframeUrl);
+	}
 
-	const iframeUrl = `${siteOrigin}/dash?sid=${dash.sid}&site_name=${dash.siteName}&dash=${dashboardName}`;
-	$('#dash-iframe').attr('src', iframeUrl);
-}
-
-
-/** Change page title
- * @param {str} title
-*/
-function changeTitle(title) {
-	const pageTitle = $(dash.wrapper).find('div.title-text');
-	pageTitle.text(`${title} Dashboard`);
+	changeTitle() {
+		this.pageTitle.text(`${this.dashboardName} Dashboard`);
+	}
 }

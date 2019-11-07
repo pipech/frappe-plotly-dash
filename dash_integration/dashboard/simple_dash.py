@@ -1,15 +1,15 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import frappe
 
 from dash.dependencies import Input, Output
 
-from dash_integration.app import dash_app
-
+from dash_integration.dash_application import dash_app
 
 
 def get_layout():
     print('=====================')
-    print(dash_app.fp.db.get_value('User', 'Administrator', 'user_type'))
+    print(frappe.db.get_value('User', 'Administrator', 'user_type'))
     print('=====================')
 
     layout = [
