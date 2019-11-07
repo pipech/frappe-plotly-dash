@@ -1,8 +1,6 @@
 const dash = {};
 
 frappe.pages['dash'].on_page_load = (wrapper) => {
-	const cookie = frappe.get_cookies();
-	dash.siteName = frappe.boot.sitename;
 	dash.wrapper = wrapper;
 
 	// init page
