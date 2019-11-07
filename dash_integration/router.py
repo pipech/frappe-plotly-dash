@@ -9,8 +9,8 @@ def callback():
     @dash_app.callback(
         Output('page-content', 'children'),
         [
-            dash.dependencies.Input('url', 'pathname'),
-            dash.dependencies.Input('url', 'href'),
+            Input('url', 'pathname'),
+            Input('url', 'href'),
         ],
     )
     def display_page(pathname, href):
