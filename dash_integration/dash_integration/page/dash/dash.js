@@ -94,8 +94,7 @@ function createSelectionField(wrapper) {
 */
 function changeIframeUrl(dashboardName) {
 	const siteOrigin = window.location.origin;
-
-	const iframeUrl = `${siteOrigin}/dash?sid=${dash.sid}&site_name=${dash.siteName}&dash=${dashboardName}`;
+	const iframeUrl = `${siteOrigin}/dash/dashboard?sid=${dash.sid}&dash=${dashboardName}`;
 	$('#dash-iframe').attr('src', iframeUrl);
 }
 

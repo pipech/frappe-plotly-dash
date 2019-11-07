@@ -21,11 +21,11 @@ def callback():
             # extract information from url
             parsed_uri = urllib.parse.urlparse(href)
             url_param = urllib.parse.parse_qs(parsed_uri.query)
-            dashboard = url_param.get('dashboard', '')[0]
+            dashboard = url_param.get('dash', '')[0]
 
-            if dashboard == 'Test1':
+            if dashboard == 'Testing 1':
                 return simple_dash.get_layout()
-            elif dashboard == 'Test2':
+            elif dashboard == 'Testing 2':
                 return simple_dash2.layout
             else:
                 return '404'
