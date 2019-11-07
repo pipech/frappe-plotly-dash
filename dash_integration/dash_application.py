@@ -26,6 +26,24 @@ dash_app.layout = html.Div([
     html.Div(id='page-content'),
 ])
 
+
+def dash_render_template(template_name):
+    # default render template by frappe
+    template = frappe.render_template(template_name, context={})
+
+    # replacing custom context
+    template = template.replace('[%', '{%')
+    template = template.replace('%]', '%}')
+
+    return template
+
+
+# Override the underlying HTML template
+html_layout = dash_render_template(
+    template_name='templates/dashboard.html',
+)
+dash_app.index_string = html_layout
+
 # registered callback
 with server.app_context():
     from dash_integration.router import callback
