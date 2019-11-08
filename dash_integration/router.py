@@ -4,9 +4,11 @@ from dash_integration.dash_application import dash_app
 from dash_integration.auth import has_desk_permission
 from dash_integration.auth import has_dashboard_permission
 from dash_dashboard.router import dashboard_route
+from dash_dashboard.router import dashboard_callback
 from dash.dependencies import Input, Output
 
 
+@dashboard_callback
 def callback():
     @dash_app.callback(
         Output('page-content', 'children'),
