@@ -6,3 +6,8 @@ body {
 #container {
     margin-top: 0px;
 }
+
+div.card-header.narrow {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
