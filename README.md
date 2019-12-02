@@ -31,6 +31,11 @@ Then we embedded Dash page with CoreUI template into Frappe page using iFrame.
 
 Dash Integration app is design to use along with [Dash Dashboard](https://github.com/pipech/frappe-plotly-dash-dashboard) app.
 
+#### Installation
+
+    bench get-app dash_integration https://github.com/pipech/frappe-plotly-dash.git
+    bench get-app dash_dashboard https://github.com/pipech/frappe-plotly-dash-dashboard.git
+
 #### Adding dashboard
 
  1. Adding dashboard layout to `dash_dashboard/dash_dashboard` folder
