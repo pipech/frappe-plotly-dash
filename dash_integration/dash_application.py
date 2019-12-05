@@ -16,6 +16,13 @@ dash_app = dash.Dash(
 # config
 dash_app.config.suppress_callback_exceptions = True
 
+# load data
+try:
+    from dash_dashboard.data import get_data
+    df = get_data()
+except ImportError:
+    pass
+
 # registered dash config
 with server.app_context():
     # router
