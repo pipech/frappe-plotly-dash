@@ -14,37 +14,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 
+    {% if dashboard_css %}
     <style>
-      .tile.is-gapless .tile.is-parent {
-        padding: 3px;
-      }
-      .tile.is-gapless .tile.is-vertical>.tile.is-child {
-          margin-bottom: 0px !important;
-      }
-      .tile.is-gapless .notification {
-        border-radius: 0px;
-      }
-      .tile.is-border .box {
-        box-shadow: none;
-        border: 0.5px solid hsl(0, 0%, 71%);
-      }
-      .tile.is-gapless table td {
-        border: none;
-        padding: 0;
-        text-align: center;
-      }
-      /* dash component config */
-      .DateInput_input {
-        font-size: inherit;
-        font-weight: inherit;
-        line-height: inherit;
-        padding: inherit;
-        padding-left: 5px;
-      }
-      .DateInput {
-        width: 90px;
-      }
+      {{ dashboard_css }}
     </style>
+    {% endif %}
   </head>
 
   <body>
