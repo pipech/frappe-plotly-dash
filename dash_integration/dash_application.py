@@ -55,13 +55,18 @@ def build_ajax(request):
     response = Response()
 
     data = dash_dispatcher(request)
-    if isinstance(data, dict):
-        data = json.dumps(data)
-    response.data = data
-
-    response.status_code = 200
-    response.mimetype = 'application/json'
-    response.charset = 'utf-8'
+    if data:
+        if isinstance(data, dict):
+            data = json.dumps(data)
+        response.data = data
+        response.status_code = 200
+        response.mimetype = 'application/json'
+        response.charset = 'utf-8'
+    else:
+        # incase of dash.exceptions.PreventUpdate or dash.no_update
+        # data will == ''
+        # response with 204
+        response.status_code = 204
 
     return response
 
