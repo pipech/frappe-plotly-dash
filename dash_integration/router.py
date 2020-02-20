@@ -42,8 +42,6 @@ def dash_route(dashboard):
 
 def get_not_permitted_layout(href):
     parsed = urlparse.urlparse(href)
-    print(href)
-    print(parsed)
     layout = html.Div(
         [
             html.Div(
