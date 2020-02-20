@@ -1,4 +1,7 @@
 import urllib
+import dash_core_components as dcc
+import dash_html_components as html
+import urllib.parse as urlparse
 
 from dash_integration.dash_application import dash_app
 from dash_integration.auth import has_desk_permission
@@ -29,9 +32,70 @@ def callback():
                 else:
                     return 'You are not permitted to access this dashboard'
             else:
-                return 'You are not permitted to access this page'
+                return get_not_permitted_layout(href)
 
 
 @dashboard_route
 def dash_route(dashboard):
     return '404'
+
+
+def get_not_permitted_layout(href):
+    parsed = urlparse.urlparse(href)
+    print(href)
+    print(parsed)
+    layout = html.Div(
+        [
+            html.Div(
+                className='modal-background',
+            ),
+            html.Div(
+                [
+                    html.Header(
+                        [
+                            html.P(
+                                'Not Permitted',
+                                className='modal-card-title',
+                            ),
+                            html.Img(
+                                # TODO: change to dynamic url
+                                src='http://site1.local:8000/assets/dash_dashboard/images/eucerin_logo.svg',
+                                style={'height': '24px'},
+                            ),
+                        ],
+                        className='modal-card-head',
+                    ),
+                    html.Section(
+                        [
+                            html.P(
+                                'You are not permitted to access this page',
+                                className='modal-card-title',
+                            ),
+                        ],
+                        className='modal-card-body',
+                        style={
+                            'border-bottom-right-radius': 0,
+                            'border-bottom-left-radius': 0,
+                        },
+                    ),
+                    html.Section(
+                        html.A(
+                            'Login',
+                            href='/dashboard?{}'.format(parsed.query),
+                            className='button is-small is-info',
+                            style={
+                                'background-color': '#83868c',
+                            },
+                        ),
+                        className='modal-card-foot',
+                        style={
+                            'padding': '12px 16px',
+                        },
+                    ),
+                ],
+                className='modal-card',
+            )
+        ],
+        className='modal db-modal is-active',
+    )
+    return layout
