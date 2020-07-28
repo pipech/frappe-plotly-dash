@@ -2,6 +2,7 @@ import urllib
 import dash_core_components as dcc
 import dash_html_components as html
 import urllib.parse as urlparse
+import frappe
 
 from dash_integration.dash_application import dash_app
 from dash_integration.auth import has_desk_permission
@@ -14,7 +15,10 @@ from dash.dependencies import Input, Output
 @dashboard_callback
 def callback():
     @dash_app.callback(
-        Output('page-content', 'children'),
+        [
+            Output('page-content', 'children'),
+            Output('csrf_token', 'value'),
+        ],
         [
             Input('url', 'href'),
         ],
@@ -26,13 +30,24 @@ def callback():
             url_param = urllib.parse.parse_qs(parsed_uri.query)
             dashboard = url_param.get('dash', '')[0]
 
+            csrf_token = frappe.local.session.data.csrf_token
+
             if has_desk_permission():
                 if has_dashboard_permission(dashboard):
-                    return dash_route(dashboard)
+                    return [
+                        dash_route(dashboard),
+                        csrf_token,
+                    ]
                 else:
-                    return 'You are not permitted to access this dashboard'
+                    return [
+                        'You are not permitted to access this dashboard',
+                        csrf_token,
+                    ]
             else:
-                return get_not_permitted_layout(href)
+                return [
+                    get_not_permitted_layout(href),
+                    csrf_token,
+                ]
 
 
 @dashboard_route

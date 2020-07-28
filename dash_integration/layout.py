@@ -9,6 +9,10 @@ def config_layout(dash_app):
     # dash layout
     dash_app.layout = html.Div([
         dcc.Location(id='url', refresh=False),
+        dcc.Input(
+            id='csrf_token',
+            style={'display': 'none'},
+        ),
         html.Div(id='page-content'),
     ])
 

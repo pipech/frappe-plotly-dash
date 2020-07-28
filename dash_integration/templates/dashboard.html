@@ -30,7 +30,26 @@
 
     [%config%]
     [%scripts%]
-    [%renderer%]
+
+    <script id="_dash-renderer" type"application/javascript">
+      class cRenderer extends DashRenderer {
+        constructor(hooks={request_pre: null, request_post: null}) {
+          super(hooks)
+        }
+      }
+      cRenderer.propTypes = {
+        'hooks': PropTypes.shape({
+            'request_pre': PropTypes.func,
+            'request_post': PropTypes.func,
+        })
+      }
+      const renderer = new cRenderer({
+        request_pre: (req) => {
+          req['csrf_token'] = document.getElementById('csrf_token').value;
+        },
+        request_post: (req) => {},
+      })
+    </script>
 
     <!-- send height to parent script -->
     <script>

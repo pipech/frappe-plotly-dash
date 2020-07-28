@@ -50,14 +50,18 @@ def application(request):
     except frappe.SessionStopped as e:
         response = frappe.utils.response.handle_session_stopped()
 
-    except Exception as e:
-        # dash router
+    except frappe.exceptions.CSRFTokenError as e:
         # ####################################################
+        # This is still needed because the first callback (href)
+        # will still get frappe.exceptions.CSRFTokenError error
         if frappe.request.path.startswith("/dash/_dash"):
             response = build_ajax(request)
         # ####################################################
         else:
             response = handle_exception(e)
+
+    except Exception as e:
+        response = handle_exception(e)
 
     else:
         rollback = after_request(rollback)
