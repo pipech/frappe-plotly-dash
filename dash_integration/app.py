@@ -14,7 +14,7 @@ def application(request):
         rollback = True
 
         init_request(request)
-        if not getattr(frappe.local, 'initialised', False):
+        if getattr(frappe.local, 'initialised', False):
             from dash_integration.dash_application import build_ajax, build_page
 
         frappe.recorder.record()
@@ -56,6 +56,8 @@ def application(request):
         # This is still needed because the first callback (href)
         # will still get frappe.exceptions.CSRFTokenError error
         if frappe.request.path.startswith("/dash/_dash"):
+            if getattr(frappe.local, 'initialised', False):
+                from dash_integration.dash_application import build_ajax
             response = build_ajax(request)
         # ####################################################
         else:
