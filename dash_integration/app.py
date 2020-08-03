@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from dash_integration.dash_application import build_ajax, build_page
 from frappe.app import *
 
 
@@ -15,6 +14,8 @@ def application(request):
         rollback = True
 
         init_request(request)
+        if not getattr(frappe.local, 'initialised', False):
+            from dash_integration.dash_application import build_ajax, build_page
 
         frappe.recorder.record()
 
