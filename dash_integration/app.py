@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from dash_integration.dash_application import build_ajax, build_page
 from frappe.app import *
 
 
@@ -14,8 +15,6 @@ def application(request):
         rollback = True
 
         init_request(request)
-        if getattr(frappe.local, 'initialised', False):
-            from dash_integration.dash_application import build_ajax, build_page
 
         frappe.recorder.record()
 
@@ -56,8 +55,6 @@ def application(request):
         # This is still needed because the first callback (href)
         # will still get frappe.exceptions.CSRFTokenError error
         if frappe.request.path.startswith("/dash/_dash"):
-            if getattr(frappe.local, 'initialised', False):
-                from dash_integration.dash_application import build_ajax
             response = build_ajax(request)
         # ####################################################
         else:
