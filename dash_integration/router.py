@@ -71,8 +71,7 @@ def get_not_permitted_layout(href):
                                 className='modal-card-title',
                             ),
                             html.Img(
-                                # TODO: change to dynamic url
-                                src='http://site1.local:8000/assets/dash_dashboard/images/eucerin_logo.svg',
+                                src="/assets/dash_dashboard/images/eucerin_logo.svg",
                                 style={'height': '24px'},
                             ),
                         ],
